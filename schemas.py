@@ -11,8 +11,8 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, EmailStr
+from typing import Optional, List
 
 # Example schemas (replace with your own):
 
@@ -22,7 +22,7 @@ class User(BaseModel):
     Collection name: "user" (lowercase of class name)
     """
     name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
+    email: EmailStr = Field(..., description="Email address")
     address: str = Field(..., description="Address")
     age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
     is_active: bool = Field(True, description="Whether user is active")
@@ -38,11 +38,24 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# Portfolio-specific schemas
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Project(BaseModel):
+    """
+    Portfolio projects
+    Collection name: "project"
+    """
+    title: str = Field(..., description="Project title")
+    description: str = Field(..., description="Short summary")
+    tags: List[str] = Field(default_factory=list, description="Tech stack tags")
+    link: Optional[str] = Field(None, description="External URL")
+    featured: bool = Field(True, description="Show on homepage")
+
+class Message(BaseModel):
+    """
+    Contact messages
+    Collection name: "message"
+    """
+    name: str = Field(..., min_length=2)
+    email: EmailStr
+    message: str = Field(..., min_length=10, max_length=5000)
